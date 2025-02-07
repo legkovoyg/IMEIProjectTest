@@ -1,0 +1,72 @@
+services:
+  db:
+    image: postgres:14
+    container_name: postgres_db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  db_service:
+    build:
+      context: ./db_service
+      dockerfile: /docker/Dockerfile
+    container_name: db_service
+    env_file:
+      - .env
+    ports:
+      - "8002:8002"
+    depends_on:
+      - db
+
+  api_service:
+    build:
+      context: ./ImeiCheckerService
+      dockerfile: /docker/Dockerfile
+    container_name: api_service
+    env_file:
+      - .env
+    environment:
+      USER_SERVICE_URL: "http://db_service:8000"
+      API_KEY: ${IMEI_API}
+    depends_on:
+      - db_service
+    ports:
+      - "8001:8001"
+
+  tg_service:
+    build:
+        context: ./tgService
+        dockerfile: /docker//Dockerfile
+    container_name: tg_service
+    env_file:
+      - .env
+    environment:
+      API_SERVICE_URL: "http://api_service:8001"
+      DB_SERVICE_URL: "http://db_service:8002"
+      TELEGRAM_BOT_TOKEN: ${TG_API_KEY}
+    depends_on:
+      - api_service
+
+  gateway_service:
+    build:
+        context: ./gateaway_service
+        dockerfile: /docker/Dockerfile
+    container_name: gateway_service
+    env_file:
+      - .env
+    ports:
+      - "8005:8005"
+    depends_on:
+      - db_service
+      - api_service
+      - tg_service
+
+volumes:
+  postgres_data:
