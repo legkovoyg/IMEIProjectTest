@@ -16,7 +16,7 @@ services:
   db_service:
     build:
       context: ./db_service
-      dockerfile: /docker/Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: db_service
     env_file:
       - .env
@@ -28,7 +28,7 @@ services:
   api_service:
     build:
       context: ./ImeiCheckerService
-      dockerfile: /docker/Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: api_service
     env_file:
       - .env
@@ -43,7 +43,7 @@ services:
   tg_service:
     build:
         context: ./tgService
-        dockerfile: /docker//Dockerfile
+        dockerfile: docker/Dockerfile
     container_name: tg_service
     env_file:
       - .env
@@ -57,7 +57,7 @@ services:
   gateway_service:
     build:
         context: ./gateaway_service
-        dockerfile: /docker/Dockerfile
+        dockerfile: docker/Dockerfile
     container_name: gateway_service
     env_file:
       - .env
